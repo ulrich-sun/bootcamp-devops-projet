@@ -1,0 +1,6 @@
+---
+- name: apply kubernetes manifest file 
+  hosts: localhost
+  tasks: 
+    - name: apply manifest file
+      command: "kubectl --kubeconfig=$PWD/04_ansible/kubeconfig/kubeconfig apply -k ~/bootcamp-devops-projet/03_kubernetes "
