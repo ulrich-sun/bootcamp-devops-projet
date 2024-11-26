@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pgadmin-cm
+  labels:
+    env: prod
+    app: pgadmin
+data:
+  servers.json: |
+    {
+      "Servers:"
+        "1": {
+          "Name": "postgres-odoo"
+          "Group": "postgres-odoo-group"
+          "Port": "5432"
+          "Host": "postgres-svc"
+          "SSLMode": "prefer"
+          "MaintenanceDB": "postgres"
+        }
+    } 
+  email: toto@toto.com
