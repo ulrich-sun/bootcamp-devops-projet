@@ -1,0 +1,5 @@
+resources:
+  - postgressql 
+  - odoo 
+  - pgadmin 
+  - ic-webapp
