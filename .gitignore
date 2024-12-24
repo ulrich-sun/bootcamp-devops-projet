@@ -3,7 +3,7 @@
 .terraform.lock.hcl
 
 # Fichiers de variables sensibles (ne jamais versionner)
-*.tfvars
+# *.tfvars
 *.tfstate
 *.tfstate.*
 
