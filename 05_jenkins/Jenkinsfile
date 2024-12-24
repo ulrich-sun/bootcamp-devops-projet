@@ -88,7 +88,7 @@ pipeline {
                 script {
                     sh '''
                         cd 04_ansible/
-                        ansible_playbook playbooks/docker/main.yaml
+                        ansible-playbook playbooks/docker/main.yaml
                     '''
                 }
             }
@@ -155,7 +155,7 @@ pipeline {
                 script {
                     sh '''
                         cd 04_ansible/
-                        ansible_playbook playbooks/k3s/main.yaml
+                        ansible-playbook playbooks/k3s/main.yaml
                     '''
                 }
             }
