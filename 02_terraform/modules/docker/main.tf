@@ -20,8 +20,13 @@ resource "aws_instance" "ec2_project" {
     scripts = ["./scripts/docker.sh"]
   }
   provisioner "local-exec" {
-    command = "echo Your Public IP Address: ${self.public_ip} >> ./ip/docker_ip.txt"
+    command = "sed -i '/ansible_host:/d' ../04_ansible/host_vars/docker.yaml"
   }
+  provisioner "local-exec" {
+    command = "echo -e '\n ansible_host: ${self.public_ip}' >> ../04_ansible/host_vars/docker.yaml"
+  }
+
+
   tags = {
     Name = var.instance_name
   }
