@@ -12,7 +12,7 @@ pipeline {
     //     IP = "172.17.0.1"
 
     // }
-    // stages {
+    stages {
     //     stage('Build Image'){
     //         steps{
     //             script {
