@@ -23,7 +23,7 @@ resource "aws_instance" "ec2_project" {
     command = "sed -i '/ansible_host:/d' ../04_ansible/host_vars/k3s.yaml"
   }
   provisioner "local-exec" {
-    command = "echo -e '\n ansible_host: ${self.public_ip}' >> ../04_ansible/host_vars/k3s.yaml"
+    command = "echo -e ansible_host: ${self.public_ip} >> ../04_ansible/host_vars/k3s.yaml"
   }
   tags = {
     Name = var.instance_name
