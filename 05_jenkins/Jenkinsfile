@@ -172,9 +172,9 @@ pipeline {
             }
             steps{
                 script {
-                    timeout(timae:30, unit: "MINUTES"){
-                        input message: "Confirmer la suppression de l'instance Kubernetes", ok: 'YES'
-                    }
+                    // timeout(timae:30, unit: "MINUTES"){
+                    //     input message: "Confirmer la suppression de l'instance Kubernetes", ok: 'YES'
+                    // }
                     sh '''
                         mkdir -p ~/.aws
                         echo "[default]" > ~/.aws/credentials
