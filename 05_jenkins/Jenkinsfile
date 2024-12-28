@@ -153,8 +153,10 @@ pipeline {
             }
             steps {
                 script {
-                     cd 04_ansible/
+                    sh '''
+                    cd 04_ansible/
                     ansible all -m ping 
+                    '''
                 }
             }
         }
