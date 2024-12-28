@@ -145,7 +145,7 @@ pipeline {
                             echo -e "aws_secret_access_key=$AWS_SECRET_ACCESS_KEY" >> ~/.aws/credentials
                             chmod 400 ~/.aws/credentials
                             cd 02_terraform/
-                            #terraform init 
+                            terraform init 
                             terraform destroy -var="stack=kubernetes" -auto-approve
                             cat ../04_ansible/host_vars/k3s.yaml
                         '''
