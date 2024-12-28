@@ -173,21 +173,22 @@ pipeline {
                 }
             }
         }
-        // stage ('Ansible deploy on kubernetes vm'){
-        //     agent {
-        //         docker {
-        //             image 'registry.gitlab.com/robconnolly/docker-ansible:latest'
-        //         }
-        //     }
-        //     steps {
-        //         script {
-        //             sh '''
-        //                 cd 04_ansible/
-        //                 ansible-playbook playbooks/k3s/main.yml
-        //             '''
-        //         }
-        //     }
-        // }
+        stage ('Ansible deploy on kubernetes vm'){
+            agent {
+                docker {
+                    image 'registry.gitlab.com/robconnolly/docker-ansible:latest'
+                }
+            }
+            steps {
+                script {
+                    unstash 'k3s'
+                    sh '''
+                        cd 04_ansible/
+                        ansible-playbook playbooks/k3s/main.yml
+                    '''
+                }
+            }
+        }
         // stage('Destroy Kubernetes EC2'){
         //     environment{
         //         AWS_ACCESS_KEY_ID = credentials('aws_access_key_id')
