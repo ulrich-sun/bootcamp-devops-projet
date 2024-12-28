@@ -163,6 +163,7 @@ pipeline {
                     dir('/var/jenkins_home/workspace/bootcamp') {
                         sh '''
                             cd 04_ansible/
+                            cat host_vars/docker.yaml
                             ansible all -m ping 
                         '''
                     }
