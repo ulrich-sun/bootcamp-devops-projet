@@ -145,9 +145,9 @@ pipeline {
                             echo -e "aws_secret_access_key=$AWS_SECRET_ACCESS_KEY" >> ~/.aws/credentials
                             chmod 400 ~/.aws/credentials
                             cd 02_terraform/
-                            terraform init 
-                            terraform apply -var="stack=kubernetes" -auto-approve
-                            cat ../04_ansible/host_vars/docker.yaml
+                            #terraform init 
+                            terraform destroy -var="stack=kubernetes" -auto-approve
+                            cat ../04_ansible/host_vars/k3s.yaml
                         '''
                     }
                 }
@@ -164,7 +164,7 @@ pipeline {
                     dir('/var/jenkins_home/workspace/bootcamp') {
                         sh '''
                             cd 04_ansible/
-                            cat host_vars/docker.yaml
+                            cat host_vars/k3s.yaml
                             ansible all -m ping 
                         '''
                     }
