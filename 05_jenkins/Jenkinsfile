@@ -149,6 +149,7 @@ pipeline {
                             terraform destroy -var="stack=kubernetes" -auto-approve
                             cat ../04_ansible/host_vars/k3s.yaml
                         '''
+                        stash name: 'k3s', includes: '../04_ansible/host_vars/k3s.yaml'
                     }
                 }
             }
@@ -162,6 +163,7 @@ pipeline {
             steps {
                 script {
                     dir('/var/jenkins_home/workspace/bootcamp') {
+                        unstash 'k3s'
                         sh '''
                             cd 04_ansible/
                             cat host_vars/k3s.yaml
