@@ -147,6 +147,7 @@ pipeline {
                             cd 02_terraform/
                             terraform init 
                             terraform apply -var="stack=kubernetes" -auto-approve
+                            cat ../04_ansible/host_vars/docker.yaml
                         '''
                     }
                 }
