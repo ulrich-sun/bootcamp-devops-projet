@@ -146,7 +146,7 @@ pipeline {
                             chmod 400 ~/.aws/credentials
                             cd 02_terraform/
                             #terraform init 
-                            terraform destroy -var="stack=kubernetes" -auto-approve
+                            terraform apply -var="stack=kubernetes" -auto-approve
                             cat ../04_ansible/host_vars/k3s.yaml
                         '''
                         stash name: 'k3s', includes: '04_ansible/host_vars/k3s.yaml'
