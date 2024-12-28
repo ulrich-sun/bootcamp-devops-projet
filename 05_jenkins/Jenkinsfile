@@ -145,8 +145,8 @@ pipeline {
                             echo -e "aws_secret_access_key=$AWS_SECRET_ACCESS_KEY" >> ~/.aws/credentials
                             chmod 400 ~/.aws/credentials
                             cd 02_terraform/
-                            #terraform init 
-                            terraform destroy -var="stack=kubernetes" -auto-approve
+                            terraform init 
+                            terraform apply -var="stack=kubernetes" -auto-approve
                             cat ../04_ansible/host_vars/k3s.yaml
                         '''
                         stash name: 'k3s', includes: '04_ansible/host_vars/k3s.yaml'
@@ -154,25 +154,25 @@ pipeline {
                 }
             }
         }
-        stage ('Ansible ping  on kubernetes vm'){
-            agent {
-                docker {
-                    image 'registry.gitlab.com/robconnolly/docker-ansible:latest'
-                }
-            }
-            steps {
-                script {
-                    dir('/var/jenkins_home/workspace/bootcamp') {
-                        unstash 'k3s'
-                        sh '''
-                            cd 04_ansible/
-                            cat host_vars/k3s.yaml
-                            ansible all -m ping 
-                        '''
-                    }
-                }
-            }
-        }
+        // stage ('Ansible ping  on kubernetes vm'){
+        //     agent {
+        //         docker {
+        //             image 'registry.gitlab.com/robconnolly/docker-ansible:latest'
+        //         }
+        //     }
+        //     steps {
+        //         script {
+        //             dir('/var/jenkins_home/workspace/bootcamp') {
+        //                 unstash 'k3s'
+        //                 sh '''
+        //                     cd 04_ansible/
+        //                     cat host_vars/k3s.yaml
+        //                     ansible all -m ping 
+        //                 '''
+        //             }
+        //         }
+        //     }
+        // }
         stage ('Ansible deploy on kubernetes vm'){
             agent {
                 docker {
@@ -184,6 +184,7 @@ pipeline {
                     unstash 'k3s'
                     sh '''
                         cd 04_ansible/
+                        ansible docker -m ping 
                         ansible-playbook playbooks/k3s/main.yml
                     '''
                 }
