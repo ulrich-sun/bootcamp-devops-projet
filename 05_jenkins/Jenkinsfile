@@ -155,7 +155,7 @@ pipeline {
                 script {
                     sh '''
                         cd 04_ansible/
-                        ansible-playbook playbooks/k3s/main.yaml
+                        ansible-playbook playbooks/k3s/main.yml
                     '''
                 }
             }
