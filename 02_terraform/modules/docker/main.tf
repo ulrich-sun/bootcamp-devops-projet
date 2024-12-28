@@ -10,15 +10,15 @@ resource "aws_instance" "ec2_project" {
     encrypted             = true
     delete_on_termination = true
   }
-  provisioner "remote-exec" {
-    connection {
-      type        = "ssh"
-      user        = var.username
-      private_key = file(var.private_key_path)
-      host        = self.public_ip
-    }
-    scripts = ["./scripts/docker.sh"]
-  }
+#  provisioner "remote-exec" {
+#    connection {
+#      type        = "ssh"
+#      user        = var.username
+#      private_key = file(var.private_key_path)
+#      host        = self.public_ip
+#    }
+#    scripts = ["./scripts/docker.sh"]
+#  }
   provisioner "local-exec" {
     command = "echo -e 'ansible_host: ${self.public_ip}' >> ../04_ansible/host_vars/docker.yaml"
   }
