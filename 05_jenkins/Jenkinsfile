@@ -110,9 +110,9 @@ pipeline {
             }
             steps{
                 script {
-                    timeout(timae:30, unit: "MINUTES"){
-                        input message: "Confirmer la suppression de l'instance Docker", ok: 'YES'
-                    }
+                    // timeout(timae:30, unit: "MINUTES"){
+                    //     input message: "Confirmer la suppression de l'instance Docker", ok: 'YES'
+                    // }
                     sh '''
                         mkdir -p ~/.aws
                         echo "[default]" > ~/.aws/credentials
@@ -121,7 +121,9 @@ pipeline {
                         chmod 400 ~/.aws/credentials
                         cd 02_terraform/
                         terraform destroy -var="stack=docker" -auto-approve
+                        
                     '''
+                    
                 }
             }
         }
@@ -146,7 +148,12 @@ pipeline {
                         cd 02_terraform/
                         terraform init 
                         terraform apply -var="stack=kubernetes" -auto-approve
+                        cat ../04_ansible/host_vars/k3s.yaml
+                        ls ../02_terraform/keypair/
                     '''
+                    stash includes: '04_ansible/*', name: 'ansible-file'
+                    stash includes: '02_terraform/keypair/*', name: 'keypair'
+                    
                 }
             }
         }
@@ -162,6 +169,8 @@ pipeline {
                     cd 04_ansible/
                     ansible all -m ping 
                     '''
+                    unstash: 'ansible-file'
+                    unstash: 'keypair'
                 }
             }
         }
