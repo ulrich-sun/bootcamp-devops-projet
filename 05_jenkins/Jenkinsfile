@@ -222,6 +222,7 @@ pipeline {
             steps {
                 script {
                     sh '''
+                        apt install sshpass -y
                         cd 04_ansible/
                         ansible all -m ping 
                     '''
