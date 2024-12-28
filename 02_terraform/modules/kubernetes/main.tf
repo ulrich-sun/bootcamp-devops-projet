@@ -20,7 +20,7 @@ resource "aws_instance" "ec2_project" {
     scripts = ["./scripts/kubernetes.sh"]
   }
   provisioner "local-exec" {
-    command = "echo -e '\nansible_host: ${self.public_ip}' >> ../04_ansible/host_vars/k3s.yaml"
+    command = "echo -e 'ansible_host: ${self.public_ip}' >> ../04_ansible/host_vars/k3s.yaml"
   }
   tags = {
     Name = var.instance_name

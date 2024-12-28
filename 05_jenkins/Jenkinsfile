@@ -198,6 +198,7 @@ pipeline {
                         chmod 400 ~/.aws/credentials
                         cd 02_terraform/
                         terraform destroy -var="stack=docker" -auto-approve
+                        cat ../04_ansible/host_vars/docker.yaml
                     '''
                 }
             }
