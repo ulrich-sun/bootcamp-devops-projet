@@ -19,8 +19,11 @@ resource "aws_instance" "ec2_project" {
     }
     scripts = ["./scripts/docker.sh"]
   }
+  # provisioner "local-exec" {
+  #   command = "echo -e '\nansible_host: ${self.public_ip}' >> ../04_ansible/host_vars/docker.yaml"
+  # }
   provisioner "local-exec" {
-    command = "echo -e '\nansible_host: ${self.public_ip}' >> ../04_ansible/host_vars/docker.yaml"
+    command = "echo IP: ${self.public_ip} > /var/jenkins_home/workspace/${var.projet_name}/public_ip.txt"
   }
 
 
