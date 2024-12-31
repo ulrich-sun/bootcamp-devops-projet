@@ -67,18 +67,19 @@ pipeline {
                         }
                     }
                 }
-                // stage ("DEV - Deploy App") {
-                //     steps {
-                //         script {
-                //             sh '''
-                //                 apt update -y
-                //                 apt install sshpass -y    
-                //                 export ANSIBLE_CONFIG=$(pwd)/04_ansible/ansible.cfg                      
-                //                 ansible-playbook $(pwd)/04_ansible/playbooks/docker/main.yml  --private-key /var/jenkins_home/workspace/ic-webapp/docker.pem 
-                //             '''
-                //         }
-                //     }
-                // }
+                stage ("DEV - Deploy App") {
+                    steps {
+                        script {
+                            sh '''
+                                apt update -y
+                                apt install sshpass -y    
+                                export ANSIBLE_CONFIG=$(pwd)/04_ansible/ansible.cfg
+                                cd 04_ansible/                      
+                                ansible-playbook playbooks/docker/main.yml  --private-key /var/jenkins_home/workspace/ic-webapp/docker.pem 
+                            '''
+                        }
+                    }
+                }
             }
         }
     } 
