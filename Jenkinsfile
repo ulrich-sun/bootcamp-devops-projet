@@ -97,8 +97,7 @@ pipeline {
                         terraform destroy --var="stack=docker" --auto-approve
                     '''                            
                 }
-             }
-          }
+            }
         }
     } 
 }   
