@@ -60,7 +60,9 @@ pipeline {
                             sh '''
                                 apt update -y
                                 apt install sshpass -y    
-                                export ANSIBLE_CONFIG=$(pwd)/04_ansible/ansible.cfg                      
+                                export ANSIBLE_CONFIG=$(pwd)/04_ansible/ansible.cfg    
+                                cd 04_ansible/     
+                                cat host_vars/docker.yaml               
                                 ansible docker -m ping  --private-key /var/jenkins_home/workspace/ic-webapp/docker.pem -o  
                             '''
                         }
@@ -70,8 +72,7 @@ pipeline {
                     steps {
                         script {
                             sh '''   
-                                cd 04_ansible/       
-                                cat                
+                                cd 04_ansible/                    
                                 ansible-playbook playbooks/docker/main.yaml -vvv  --private-key /var/jenkins_home/workspace/ic-webapp/docker.pem 
                             '''
                         }
