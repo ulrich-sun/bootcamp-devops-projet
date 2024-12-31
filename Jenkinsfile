@@ -31,19 +31,19 @@ pipeline {
         //   }
         // }
 
-        stage ('Prepare Ansible environment') {
-          agent any        
-          steps {
-             script {
-               sh '''
-                  echo "Generating host_vars for EC2 servers"
-                  echo "ansible_host: $(awk '{print $2}' /var/jenkins_home/workspace/ic-webapp/public_ip.txt)" > 04_ansible/host_vars/docker.yml
-                  echo " Generating key pair "
+        // stage ('Prepare Ansible environment') {
+        //   agent any        
+        //   steps {
+        //      script {
+        //        sh '''
+        //           echo "Generating host_vars for EC2 servers"
+        //           echo "ansible_host: $(awk '{print $2}' /var/jenkins_home/workspace/ic-webapp/public_ip.txt)" > 04_ansible/host_vars/docker.yaml
+        //           echo " Generating key pair "
                   
-               '''
-             }
-          }
-        }
+        //        '''
+        //      }
+        //   }
+        // }
                   
         stage('Deploy DEV  env for testing') {
             agent   {     
@@ -52,30 +52,28 @@ pipeline {
                         } 
                     }
             stages {
-                stage ("DEV - Ping target hosts") {
-                    steps {
-                        script {
-                            sh '''
-                                apt update -y
-                                apt install sshpass -y    
-                                export ANSIBLE_CONFIG=$(pwd)/04_ansible/ansible.cfg                      
-                                ansible docker -m ping  --private-key /var/jenkins_home/workspace/ic-webapp/docker.pem -o 
-                                ls -lrt
-                                apt install tree -y
-                                tree 
-                            '''
-                        }
-                    }
-                }
+                // stage ("DEV - Ping target hosts") {
+                //     steps {
+                //         script {
+                //             sh '''
+                //                 apt update -y
+                //                 apt install sshpass -y    
+                //                 export ANSIBLE_CONFIG=$(pwd)/04_ansible/ansible.cfg                      
+                //                 ansible docker -m ping  --private-key /var/jenkins_home/workspace/ic-webapp/docker.pem -o 
+                //                 ls -lrt
+                //                 apt install tree -y
+                //                 tree 
+                //             '''
+                //         }
+                //     }
+                // }
                 stage ("DEV - Deploy App") {
                     steps {
                         script {
-                            sh '''
-                                apt update -y
-                                apt install sshpass -y    
-                                export ANSIBLE_CONFIG=$(pwd)/04_ansible/ansible.cfg
-                                cd 04_ansible/                      
-                                ansible-playbook playbooks/docker/main.yaml  --private-key /var/jenkins_home/workspace/ic-webapp/docker.pem 
+                            sh '''   
+                                cd 04_ansible/       
+                                cat                
+                                ansible-playbook playbooks/docker/main.yaml -vvv  --private-key /var/jenkins_home/workspace/ic-webapp/docker.pem 
                             '''
                         }
                     }
