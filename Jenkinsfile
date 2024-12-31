@@ -47,39 +47,39 @@ pipeline {
           }
         }
                   
-        // stage('Deploy DEV  env for testing') {
-        //     agent{     
-        //             docker { 
-        //                 image 'registry.gitlab.com/robconnolly/docker-ansible:latest'
-        //             } 
-        //         }
-        //     stages {
-        //         stage ("DEV - Ping target hosts") {
-        //             steps {
-        //                 script {
-        //                     sh '''   
-        //                         cd 04_ansible/
-        //                         cat host_vars/docker.yaml
-        //                         #export ANSIBLE_CONFIG=$(pwd)/04_ansible/ansible.cfg                      
-        //                         ansible docker -m ping  --private-key /var/jenkins_home/workspace/ic-webapp/docker.pem -o 
-        //                     '''
-        //                 }
-        //             }
-        //         }
-        //         // stage ("DEV - Deploy App") {
-        //         //     steps {
-        //         //         script {
-        //         //             sh '''
-        //         //                 apt update -y
-        //         //                 apt install sshpass -y    
-        //         //                 export ANSIBLE_CONFIG=$(pwd)/04_ansible/ansible.cfg                      
-        //         //                 ansible-playbook $(pwd)/04_ansible/playbooks/docker/main.yaml  --private-key /var/jenkins_home/workspace/ic-webapp/docker.pem 
-        //         //             '''
-        //         //         }
-        //         //     }
-        //         // }
-        //     }
-        // }
+        stage('Deploy DEV  env for testing') {
+            agent{     
+                    docker { 
+                        image 'registry.gitlab.com/robconnolly/docker-ansible:latest'
+                    } 
+                }
+            stages {
+                stage ("DEV - Ping target hosts") {
+                    steps {
+                        script {
+                            sh '''   
+                                cd 04_ansible/
+                                cat host_vars/docker.yaml
+                                #export ANSIBLE_CONFIG=$(pwd)/04_ansible/ansible.cfg                      
+                                ansible docker -m ping  --private-key /var/jenkins_home/workspace/ic-webapp/docker.pem -o 
+                            '''
+                        }
+                    }
+                }
+                // stage ("DEV - Deploy App") {
+                //     steps {
+                //         script {
+                //             sh '''
+                //                 apt update -y
+                //                 apt install sshpass -y    
+                //                 export ANSIBLE_CONFIG=$(pwd)/04_ansible/ansible.cfg                      
+                //                 ansible-playbook $(pwd)/04_ansible/playbooks/docker/main.yaml  --private-key /var/jenkins_home/workspace/ic-webapp/docker.pem 
+                //             '''
+                //         }
+                //     }
+                // }
+            }
+        }
         // stage ('destroy EC2 on AWS with terraform') {
         //     steps {
         //         input message: "Confirmer vous la suppression de la dev dans AWS ?", ok: 'Yes'
