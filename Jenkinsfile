@@ -90,7 +90,7 @@ pipeline {
             }          
             steps {
                 script {       
-                    timeout(time: 30, unit: "MINUTES") {
+                    timeout(time: 2, unit: "MINUTES") {
                         input message: "Confirmer vous la suppression de la dev dans AWS ?", ok: 'Yes'
                     }
                     sh '''
