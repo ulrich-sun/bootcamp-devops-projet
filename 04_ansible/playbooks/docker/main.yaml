@@ -7,7 +7,7 @@
   vars:
     network: webapp-network
   roles:
-    - docker
+    #- docker
     - icwebapp
     - odoo
     - pgdamin
