@@ -12,7 +12,7 @@ locals {
   ami_id        = data.aws_ami.ubuntu.id
   #filename      = "./keypair/${var.stack}.pem"
   # filename      =  "/var/jenkins_home/workspace/ic-webapp/${var.stack}.pem"
-  filename      =  "/var/jenkins_home/workspace/ic-webapp/test.pem"
+  filename      =  "/var/jenkins_home/workspace/ic-webapp/docker.pem"
   instance_name = var.stack
 }
 
