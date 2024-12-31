@@ -79,18 +79,22 @@ pipeline {
             }
         }
         stage ('destroy EC2 on AWS with terraform') {
-            agent { 
-                    docker { 
-                        image 'jenkins/jnlp-agent-terraform'  
-                    } 
-                }
-            environment {
-            AWS_ACCESS_KEY_ID = credentials('aws_access_key_id')
-            AWS_SECRET_ACCESS_KEY = credentials('aws_secret_access_key')
-            }          
             steps {
-                    input message: "Confirmer vous la suppression de la dev dans AWS ?", ok: 'Yes'
-                script {       
+                input message: "Confirmer vous la suppression de la dev dans AWS ?", ok: 'Yes'
+            }
+        }
+        stage ('destroy EC2 with Docker') {
+            agent {
+                docker {
+                    image 'jenkins/jnlp-agent-terraform'
+                }
+            }
+            environment {
+                AWS_ACCESS_KEY_ID = credentials('aws_access_key_id')
+                AWS_SECRET_ACCESS_KEY = credentials('aws_secret_access_key')
+            }
+            steps {
+                script {
                     sh '''
                         cd "./02_terraform/"
                         terraform destroy --var="stack=docker" --auto-approve
@@ -98,5 +102,6 @@ pipeline {
                 }
             }
         }
+
     }   
 }
