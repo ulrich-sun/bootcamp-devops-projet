@@ -22,10 +22,11 @@ pipeline {
                   echo -e "aws_secret_access_key=$AWS_SECRET_ACCESS_KEY" >> ~/.aws/credentials
                   chmod 400 ~/.aws/credentials
                   cd "./02_terraform/"
-                  terraform init 
-                  #terraform destroy --auto-approve
-                  terraform plan
-                  terraform apply --var="stack=docker" --auto-approve
+                  #terraform init 
+                  terraform destroy --var="stack=docker" --auto-approve
+                  rm -rf /var/jenkins_home/workspace/ic-webapp/public_ip.txt
+                  #terraform plan
+                  #terraform apply --var="stack=docker" --auto-approve
                '''
              }
           }
