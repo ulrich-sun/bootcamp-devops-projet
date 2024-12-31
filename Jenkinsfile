@@ -57,7 +57,8 @@ pipeline {
                         script {
                             sh '''
                                 apt update -y
-                                apt install sshpass -y                            
+                                apt install sshpass -y    
+                                export ANSIBLE_CONFIG=$(pwd)/04_ansible/ansible.cfg                      
                                 ansible prod -m ping  --private-key /var/jenkins_home/workspace/ic-webapp/docker.pem -o 
                             '''
                         }
