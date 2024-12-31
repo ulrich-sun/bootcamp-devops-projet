@@ -89,9 +89,7 @@ pipeline {
             AWS_SECRET_ACCESS_KEY = credentials('aws_secret_access_key')
             }          
             steps {
-                timeout(time: 2, unit: "MINUTES") {
-                        input message: "Confirmer vous la suppression de la dev dans AWS ?", ok: 'Yes'
-                    }
+                    input message: "Confirmer vous la suppression de la dev dans AWS ?", ok: 'Yes'
                 script {       
                     sh '''
                         cd "./02_terraform/"
