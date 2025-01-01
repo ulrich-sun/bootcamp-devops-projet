@@ -55,13 +55,6 @@ pipeline {
             steps{
                 script {
                     sh '''
-                        apt update 
-                        apt install curl -y
-                        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-                        chmod +x kubectl
-                        mkdir -p ~/.local/bin
-                        mv ./kubectl ~/.local/bin/kubectl
-                        kubectl --version
                         cat  "04_ansible/host_vars/k3s.yaml"
                         cd "04_ansible/"
                         ansible all -m ping --private-key ../02_terraform/keypair/kubernetes.pem
@@ -69,7 +62,22 @@ pipeline {
                 }
             }
         }
-
+        // stage('kubectl deploy'){
+        //     agent {
+        //         docker {
+        //             image 'rancher/kubectl'
+        //         }
+                
+        //     }
+        //     steps {
+        //         script {
+        //             sh '''
+        //                 cd "04_ansible/playbooks/"
+        //                 kubectl --kubeconfig=./kubeconfig-k3s.yml get nodes
+        //             '''
+        //         }
+        //     }
+        // }
         // Autres stages de ton pipeline, y compris ceux pour Terraform et Ansible
         stage('destroy EC2 on AWS with terraform') {
             steps {
