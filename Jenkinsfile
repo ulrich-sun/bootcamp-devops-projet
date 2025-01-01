@@ -73,10 +73,11 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        export KUBECONFIG=04_ansible/playbooks/k3s/kubeconfig-k3s.yml
+                        
                         #cd "04_ansible/playbooks/"
                         #kubectl --kubeconfig=./k3s/kubeconfig-k3s.yml get nodes
                         cd "03_kubernetes/"
+                        export KUBECONFIG=04_ansible/playbooks/k3s/kubeconfig-k3s.yml
                         kubectl apply -k  postgressql/ --validate=false 
                     '''
                 }
