@@ -32,20 +32,22 @@ pipeline {
                 }
             }
         }
-        stage ('Try Ping Host') {
+        stages ('Try Ping Host') {
             agent {
                 docker {
                     image 'registry.gitlab.com/robconnolly/docker-ansible:latest'
                 }
             }
-            steps {
-                script {
-                    sh '''
-                        ls -l 04_ansible/host_vars/
-                        export ANSIBLE_CONFIG=04_ansible/ansible.cfg
-                        ansible all -m ping --private-key docker.pem -o
-                    '''
-                }
+            stage ('ping'){
+                steps {
+                    script {
+                        sh '''
+                            ls -l 04_ansible/host_vars/
+                            export ANSIBLE_CONFIG=04_ansible/ansible.cfg
+                            ansible all -m ping --private-key docker.pem -o
+                        '''
+                    }
+            }
             }
         }
     }
