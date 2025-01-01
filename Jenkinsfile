@@ -43,13 +43,13 @@ pipeline {
         }
         stage('deploy on kubernetes cluster') {
             steps {
-                input message: "Confirmer vous la suppression de la dev dans AWS ?", ok: 'Yes'
+                input message: "Confirmer vous le deploiement dans AWS ?", ok: 'Yes'
             }
         }
         stage('ansible deploy kubernetes'){
             agent {
                 docker {
-                    image 'jenkins/jnlp-agent-terraform'
+                    image  'registry.gitlab.com/robconnolly/docker-ansible:latest'
                 }
             }
             steps{
