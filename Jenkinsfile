@@ -57,7 +57,7 @@ pipeline {
                     sh '''
                         cat  "04_ansible/host_vars/k3s.yaml"
                         cd "04_ansible/"
-                        ansible all -m ping --private-key ../02_terraform/keypair/kubernetes.pem
+                        ansible k3s -m ping --private-key ../02_terraform/keypair/kubernetes.pem
                     '''
                 }
             }
