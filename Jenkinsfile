@@ -21,7 +21,7 @@ pipeline{
                         echo "write ip inside host directory"
                         echo "docker ansible_host: $(awk '{print $2}' public_ip.txt)" > 04_ansible/inventory
                         echo "check ip "
-                        // cat "04_ansible/host_vars/docker.yml"
+                        cat 04_ansible/inventory
                     '''
                 }
             }
