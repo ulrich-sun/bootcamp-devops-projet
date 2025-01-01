@@ -1,74 +1,47 @@
 pipeline {
     agent any
     stages {
-        stage ('Build EC2 Instance') {
+        stage ('Checkout') {
+            steps {
+                checkout scm // Récupère le code source du référentiel configuré
+            }
+        }
+        stage ('EC2 Instance Build') {
             steps {
                 script {
                     sh '''
-                        echo "Step 1: Building EC2 Instance"
-                        # Commands to build EC2 instance
+                        echo "Build Step"
                     '''
                 }
             }
         }
-
-        stage ('Prepare Ansible Environment') {
+        stage ('Ansible Environment') {
             steps {
                 script {
                     sh '''
-                        echo "Step 2: Preparing Ansible Environment"
-                        echo "Current working directory: ${WORKSPACE}"
-                        echo "docker ansible_host: $(awk '{print $2}' ${WORKSPACE}/public_ip.txt)" > ${WORKSPACE}/04_ansible/host_vars/docker.yml
-                        echo "Generated host_vars file:"
-                        cat ${WORKSPACE}/04_ansible/host_vars/docker.yml
+                        echo "show directory"
+                        pwd
+                        echo "show ip"
+                        cat public_ip.txt
+                        echo "write ip inside host directory"
+                        echo "ansible_host: $(awk '{print $2}' public_ip.txt)" > 04_ansible/host_vars/docker.yml
+                        echo "check ip "
+                        cat "04_ansible/host_vars/docker.yml"
                     '''
                 }
             }
         }
-
-        stage ('Test Connection to Host') {
+        stage ('Try Ping Host') {
             agent {
                 docker {
                     image 'registry.gitlab.com/robconnolly/docker-ansible:latest'
-                    args "-w ${WORKSPACE}"
                 }
             }
             steps {
                 script {
                     sh '''
-                        echo "Step 3: Testing Connection to Host"
-                        echo "Current working directory: $(pwd)"
-                        ansible -i ${WORKSPACE}/04_ansible/inventory.yml docker -m ping --private-key ${WORKSPACE}/docker.pem -o
-                    '''
-                }
-            }
-        }
-
-        stage ('Deploy Application') {
-            agent {
-                docker {
-                    image 'registry.gitlab.com/robconnolly/docker-ansible:latest'
-                    args "-w ${WORKSPACE}"
-                }
-            }
-            steps {
-                script {
-                    sh '''
-                        echo "Step 4: Deploying Application"
-                        cd ${WORKSPACE}/04_ansible
-                        ansible-playbook playbooks/docker/main.yaml --private-key ${WORKSPACE}/docker.pem -vvv
-                    '''
-                }
-            }
-        }
-
-        stage ('Cleanup') {
-            steps {
-                script {
-                    sh '''
-                        echo "Step 5: Cleaning up resources"
-                        cd ${WORKSPACE}/02_terraform
-                        terraform destroy --var="stack=docker" --auto-approve
+                        export ANSIBLE_CONFIG=04_ansible/ansible.cfg
+                        ansible all -m ping --private-key docker.pem -o
                     '''
                 }
             }
