@@ -19,9 +19,9 @@ pipeline{
                         echo "show ip"
                         cat public_ip.txt
                         echo "write ip inside host directory"
-                        echo "docker ansible_host: $(awk '{print $2}' public_ip.txt)" > 04_ansible/inventory.ini
+                        echo "docker ansible_host: $(awk '{print $2}' public_ip.txt)" > 04_ansible/host_vars/docker.yml
                         echo "check ip "
-                        cat 04_ansible/inventory.ini
+                        cat "04_ansible/host_vars/docker.yml"
                     '''
                 }
             }
@@ -36,8 +36,11 @@ pipeline{
             steps {
                 script {
                     sh '''
-                        export ANSIBLE_CONFIG=04_ansible/ansible.cfg
-                        ansible docker -m ping --private-key docker.pem -o
+                        cd "04_ansible/"
+                        cat inventory.yml
+                        cat host_vars/docker.yml
+                        ansible -i inventory.yml docker  -m ping --private-key docker.pem -o
+                        ansible all -m ping --private-key docker.pem -o
                     '''
                 }
             }
