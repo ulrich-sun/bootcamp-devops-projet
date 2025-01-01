@@ -14,6 +14,7 @@ locals {
   # filename      =  "/var/jenkins_home/workspace/ic-webapp/${var.stack}.pem"
   filename      =  "/var/jenkins_home/workspace/ic-webapp/docker.pem"
   instance_name = var.stack
+  security_groups_name = var.stack
 }
 
 module "keypair" {
@@ -24,7 +25,7 @@ module "keypair" {
 
 module "security_groups" {
   source                = "./modules/security_group"
-  security_groups_name  = var.security_groups_name
+  security_groups_name  = local.security_groups_name
   security_groups_ports = var.security_groups_ports
   protocol              = var.protocol
   depends_on = [ module.keypair ]
