@@ -1,61 +1,74 @@
 pipeline {
     agent any
-    environment {
-        WORKSPACE_DIR = "${env.WORKSPACE}" // Définit le répertoire de travail pour toutes les étapes
-    }
     stages {
-        stage('EC2 Instance Build') {
+        stage ('Build EC2 Instance') {
             steps {
                 script {
                     sh '''
-                        echo "Build Step"
+                        echo "Step 1: Building EC2 Instance"
+                        # Commands to build EC2 instance
                     '''
                 }
             }
         }
-        stage('Ansible Environment') {
+
+        stage ('Prepare Ansible Environment') {
             steps {
                 script {
                     sh '''
-                        echo "Switch to working directory"
-                        cd ${WORKSPACE_DIR}
-                        
-                        echo "Show directory"
-                        pwd
-                        
-                        echo "Show IP"
-                        cat public_ip.txt
-                        
-                        echo "Write IP inside host_vars directory"
-                        echo "docker ansible_host: $(awk '{print $2}' public_ip.txt)" > 04_ansible/host_vars/docker.yml
-                        
-                        echo "Check IP"
-                        cat 04_ansible/host_vars/docker.yml
+                        echo "Step 2: Preparing Ansible Environment"
+                        echo "Current working directory: ${WORKSPACE}"
+                        echo "docker ansible_host: $(awk '{print $2}' ${WORKSPACE}/public_ip.txt)" > ${WORKSPACE}/04_ansible/host_vars/docker.yml
+                        echo "Generated host_vars file:"
+                        cat ${WORKSPACE}/04_ansible/host_vars/docker.yml
                     '''
                 }
             }
         }
-        stage('Try Ping Host') {
+
+        stage ('Test Connection to Host') {
             agent {
                 docker {
                     image 'registry.gitlab.com/robconnolly/docker-ansible:latest'
+                    args "-w ${WORKSPACE}"
                 }
             }
             steps {
                 script {
                     sh '''
-                        echo "Switch to working directory"
-                        cd ${WORKSPACE_DIR}/04_ansible
-                        
-                        echo "Install tree utility"
-                        apt-get update -y
-                        apt-get install tree -y
-                        
-                        echo "Ping host using Ansible"
-                        ansible -i inventory.yml docker -m ping --private-key ../docker.pem -o
-                        
-                        echo "Ping all hosts using Ansible"
-                        ansible -i inventory.yml all -m ping --private-key ../docker.pem -o
+                        echo "Step 3: Testing Connection to Host"
+                        echo "Current working directory: $(pwd)"
+                        ansible -i ${WORKSPACE}/04_ansible/inventory.yml docker -m ping --private-key ${WORKSPACE}/docker.pem -o
+                    '''
+                }
+            }
+        }
+
+        stage ('Deploy Application') {
+            agent {
+                docker {
+                    image 'registry.gitlab.com/robconnolly/docker-ansible:latest'
+                    args "-w ${WORKSPACE}"
+                }
+            }
+            steps {
+                script {
+                    sh '''
+                        echo "Step 4: Deploying Application"
+                        cd ${WORKSPACE}/04_ansible
+                        ansible-playbook playbooks/docker/main.yaml --private-key ${WORKSPACE}/docker.pem -vvv
+                    '''
+                }
+            }
+        }
+
+        stage ('Cleanup') {
+            steps {
+                script {
+                    sh '''
+                        echo "Step 5: Cleaning up resources"
+                        cd ${WORKSPACE}/02_terraform
+                        terraform destroy --var="stack=docker" --auto-approve
                     '''
                 }
             }
