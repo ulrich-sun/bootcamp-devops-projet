@@ -66,7 +66,7 @@ pipeline {
         stage('kubectl deploy'){
             agent {
                 docker {
-                    image 'rancher/kubectl'
+                    image 'bitnami/kubectl'
                 }
                 
             }
