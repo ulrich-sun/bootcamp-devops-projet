@@ -77,7 +77,7 @@ pipeline {
                         #cd "04_ansible/playbooks/"
                         #kubectl --kubeconfig=./k3s/kubeconfig-k3s.yml get nodes
                         cd "03_kubernetes/"
-                        kubectl apply -k  . --validate=false 
+                        kubectl apply -k  postgressql/ --validate=false 
                     '''
                 }
             }
