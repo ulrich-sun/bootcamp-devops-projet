@@ -58,9 +58,13 @@ pipeline {
                         apt update 
                         apt install curl -y
                         curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+                        chmod +x kubectl
+                        mkdir -p ~/.local/bin
+                        mv ./kubectl ~/.local/bin/kubectl
+                        kubectl --version
                         cat  "04_ansible/host_vars/k3s.yaml"
-                        #cd "04_ansible/"
-                        #ansible all -m ping --private-key ../02_terraform/keypair/kubernetes.pem
+                        cd "04_ansible/"
+                        ansible all -m ping --private-key ../02_terraform/keypair/kubernetes.pem
                     '''
                 }
             }
