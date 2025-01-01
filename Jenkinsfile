@@ -2,6 +2,13 @@ pipeline{
     agent none 
     stages{
         stage ('EC2 Instance Build'){
+            steps {
+                script {
+                    sh '''
+                        echo "Build Step"
+                    '''
+                }
+            }
         }
         stage ('Ansible Environment'){
             steps {
