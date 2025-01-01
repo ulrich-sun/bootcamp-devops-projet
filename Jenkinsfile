@@ -42,6 +42,28 @@ pipeline {
                 }
             }
         }
+        stage('deplooy on kubernetes cluster') {
+            steps {
+                input message: "Confirmer vous la suppression de la dev dans AWS ?", ok: 'Yes'
+            }
+        }
+        stage('ansible deploy kubernetes'){
+            agent {
+                docker {
+                    image 'jenkins/jnlp-agent-terraform'
+                }
+            }
+            steps{
+                script {
+                    sh '''
+                        apt update 
+                        apt install curl -y
+                        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+                        cd "04_ansible/"
+                        ansible all -m ping --private-key ../02_terraform/keypair/kubernetes.pem
+                }
+            }
+        }
 
         // Autres stages de ton pipeline, y compris ceux pour Terraform et Ansible
         stage('destroy EC2 on AWS with terraform') {
