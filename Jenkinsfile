@@ -41,11 +41,11 @@ pipeline {
                 }
             }
         }
-        stage('deploy on kubernetes cluster') {
-            steps {
-                input message: "Confirmer vous le deploiement dans AWS ?", ok: 'Yes'
-            }
-        }
+        // stage('deploy on kubernetes cluster') {
+        //     steps {
+        //         input message: "Confirmer vous le deploiement dans AWS ?", ok: 'Yes'
+        //     }
+        // }
         stage('ansible deploy kubernetes'){
             agent {
                 docker {
@@ -58,8 +58,9 @@ pipeline {
                         apt update 
                         apt install curl -y
                         curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-                        cd "04_ansible/"
-                        ansible all -m ping --private-key ../02_terraform/keypair/kubernetes.pem
+                        cat  "04_ansible/host_vars/k3s.yaml"
+                        #cd "04_ansible/"
+                        #ansible all -m ping --private-key ../02_terraform/keypair/kubernetes.pem
                     '''
                 }
             }
