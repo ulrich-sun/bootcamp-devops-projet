@@ -37,12 +37,11 @@ pipeline {
                     sh '''
                         echo "Checking file in Check File stage..."
                         cat  "04_ansible/host_vars/k3s.yaml"
-
                     '''
                 }
             }
         }
-        stage('deplooy on kubernetes cluster') {
+        stage('deploy on kubernetes cluster') {
             steps {
                 input message: "Confirmer vous la suppression de la dev dans AWS ?", ok: 'Yes'
             }
@@ -61,6 +60,7 @@ pipeline {
                         curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
                         cd "04_ansible/"
                         ansible all -m ping --private-key ../02_terraform/keypair/kubernetes.pem
+                    '''
                 }
             }
         }
