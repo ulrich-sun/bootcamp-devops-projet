@@ -32,16 +32,13 @@ pipeline{
                     image 'registry.gitlab.com/robconnolly/docker-ansible:latest'
                 }
             }
-            stages {
-                stage ('Ping Host') {
-                    steps {
-                        script {
-                            sh '''
-                                export ANSIBLE_CONFIG=04_ansible/ansible.cfg
-                                ansible all -m ping --private-key docker.pem -o
-                            '''
-                        }
-                    }
+            
+            steps {
+                script {
+                    sh '''
+                        export ANSIBLE_CONFIG=04_ansible/ansible.cfg
+                        ansible all -m ping --private-key docker.pem -o
+                    '''
                 }
             }
         }
