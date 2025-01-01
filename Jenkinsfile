@@ -36,8 +36,7 @@ pipeline {
                     // Vérification que les modifications dans le fichier sont présentes dans ce stage
                     sh '''
                         echo "Checking file in Check File stage..."
-                        cat "02_terraform/terraform.tfstate"
-                        cat  "/04_ansible/host_vars/k3s.yaml"
+                        cat  "04_ansible/host_vars/k3s.yaml"
 
                     '''
                 }
