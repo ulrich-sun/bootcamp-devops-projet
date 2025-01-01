@@ -63,22 +63,22 @@ pipeline {
                 }
             }
         }
-        // stage('kubectl deploy'){
-        //     agent {
-        //         docker {
-        //             image 'rancher/kubectl'
-        //         }
+        stage('kubectl deploy'){
+            agent {
+                docker {
+                    image 'rancher/kubectl'
+                }
                 
-        //     }
-        //     steps {
-        //         script {
-        //             sh '''
-        //                 cd "04_ansible/playbooks/"
-        //                 kubectl --kubeconfig=./kubeconfig-k3s.yml get nodes
-        //             '''
-        //         }
-        //     }
-        // }
+            }
+            steps {
+                script {
+                    sh '''
+                        cd "04_ansible/playbooks/"
+                        kubectl --kubeconfig=./kubeconfig-k3s.yml get nodes
+                    '''
+                }
+            }
+        }
         // Autres stages de ton pipeline, y compris ceux pour Terraform et Ansible
         stage('destroy EC2 on AWS with terraform') {
             steps {
