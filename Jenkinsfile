@@ -37,7 +37,7 @@ pipeline{
                 script {
                     sh '''
                         export ANSIBLE_CONFIG=04_ansible/ansible.cfg
-                        ansible all -m ping --private-key docker.pem -o
+                        ansible docker -m ping --private-key docker.pem -o
                     '''
                 }
             }
