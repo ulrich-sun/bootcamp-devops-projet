@@ -76,7 +76,8 @@ pipeline {
                         export KUBECONFIG=04_ansible/playbooks/k3s/kubeconfig-k3s.yml
                         #cd "04_ansible/playbooks/"
                         #kubectl --kubeconfig=./k3s/kubeconfig-k3s.yml get nodes
-                        kubectl apply -k  ./03_kubernetes/ --validate=false 
+                        cd "03_kubernetes/"
+                        kubectl apply -k  . --validate=false 
                     '''
                 }
             }
