@@ -63,28 +63,28 @@ pipeline {
                 }
             }
         }
-        // stage('kubectl deploy'){
-        //     agent {
-        //         docker {
-        //             image 'mecodia/jenkins-kubectl'
-        //         }
+        stage('kubectl deploy'){
+            agent {
+                docker {
+                    image 'mecodia/jenkins-kubectl'
+                }
                 
-        //     }
-        //     steps {
-        //         script {
-        //             sh '''
-        //                 cd "04_ansible/playbooks/"
-        //                 kubectl --kubeconfig=./k3s/kubeconfig-k3s.yml get nodes
-        //             '''
-        //         }
-        //     }
-        // }
-        // // Autres stages de ton pipeline, y compris ceux pour Terraform et Ansible
-        // stage('destroy EC2 on AWS with terraform') {
-        //     steps {
-        //         input message: "Confirmer vous la suppression de la dev dans AWS ?", ok: 'Yes'
-        //     }
-        // }
+            }
+            steps {
+                script {
+                    sh '''
+                        cd "04_ansible/playbooks/"
+                        kubectl --kubeconfig=./k3s/kubeconfig-k3s.yml get nodes
+                    '''
+                }
+            }
+        }
+        // Autres stages de ton pipeline, y compris ceux pour Terraform et Ansible
+        stage('destroy EC2 on AWS with terraform') {
+            steps {
+                input message: "Confirmer vous la suppression de la dev dans AWS ?", ok: 'Yes'
+            }
+        }
 
         stage('destroy EC2 with Docker') {
             agent {
