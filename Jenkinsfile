@@ -58,6 +58,7 @@ pipeline {
                         cat  "04_ansible/host_vars/k3s.yaml"
                         cd "04_ansible/"
                         ansible k3s -m ping --private-key ../02_terraform/keypair/kubernetes.pem
+                        ansible-playbook playbooks/k3s/main.yml --private-key ../02_terraform/keypair/kubernetes.pem
                     '''
                 }
             }
