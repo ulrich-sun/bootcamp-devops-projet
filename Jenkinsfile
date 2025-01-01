@@ -74,7 +74,7 @@ pipeline {
                 script {
                     sh '''
                         cd "04_ansible/playbooks/"
-                        kubectl --kubeconfig=./kubeconfig-k3s.yml get nodes
+                        kubectl --kubeconfig=./k3s/kubeconfig-k3s.yml get nodes
                     '''
                 }
             }
