@@ -73,8 +73,10 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        cd "04_ansible/playbooks/"
-                        kubectl --kubeconfig=./k3s/kubeconfig-k3s.yml get nodes
+                        export KUBECONFIG=04_ansible/playbooks/k3s/kubeconfig-k3s.yml
+                        #cd "04_ansible/playbooks/"
+                        #kubectl --kubeconfig=./k3s/kubeconfig-k3s.yml get nodes
+                        kubectl apply -k  03_kubernetes --validate=false 
                     '''
                 }
             }
