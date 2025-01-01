@@ -40,6 +40,7 @@ pipeline {
             steps {
                 script {
                     sh '''
+                        ls -l 04_ansible/host_vars/
                         export ANSIBLE_CONFIG=04_ansible/ansible.cfg
                         ansible all -m ping --private-key docker.pem -o
                     '''
