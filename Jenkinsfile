@@ -63,26 +63,46 @@ pipeline {
                 }
             }
         }
+        // stage('kubectl deploy'){
+        //     agent {
+        //         docker {
+        //             image 'mecodia/jenkins-kubectl'
+        //         }
+                
+        //     }
+        //     steps {
+        //         script {
+        //             sh '''
+                        
+        //                 #cd "04_ansible/playbooks/"
+        //                 #kubectl --kubeconfig=./k3s/kubeconfig-k3s.yml get nodes
+        //                 cd "03_kubernetes/"
+        //                 export KUBECONFIG=04_ansible/playbooks/k3s/kubeconfig-k3s.yml
+        //                 kubectl apply -k  postgressql/ --validate=false 
+        //             '''
+        //         }
+        //     }
+        // }
         stage('kubectl deploy'){
             agent {
                 docker {
                     image 'mecodia/jenkins-kubectl'
                 }
-                
             }
             steps {
                 script {
                     sh '''
-                        
-                        #cd "04_ansible/playbooks/"
-                        #kubectl --kubeconfig=./k3s/kubeconfig-k3s.yml get nodes
-                        cd "03_kubernetes/"
-                        export KUBECONFIG=04_ansible/playbooks/k3s/kubeconfig-k3s.yml
-                        kubectl apply -k  postgressql/ --validate=false 
+                        echo "Verifying kubeconfig file..."
+                        ls -l 04_ansible/playbooks/k3s/kubeconfig-k3s.yml
+                        echo "Checking cluster access..."
+                        kubectl --kubeconfig=04_ansible/playbooks/k3s/kubeconfig-k3s.yml get nodes
+                        echo "Deploying resources..."
+                        kubectl --kubeconfig=04_ansible/playbooks/k3s/kubeconfig-k3s.yml apply -k postgressql/ --validate=false
                     '''
                 }
             }
         }
+
         // Autres stages de ton pipeline, y compris ceux pour Terraform et Ansible
         stage('destroy EC2 on AWS with terraform') {
             steps {
