@@ -96,8 +96,10 @@ pipeline {
                         ls -l 04_ansible/playbooks/k3s/kubeconfig-k3s.yml
                         echo "Checking cluster access..."
                         kubectl --kubeconfig=04_ansible/playbooks/k3s/kubeconfig-k3s.yml get nodes
-                        echo "Deploying resources..."
-                        kubectl --kubeconfig=04_ansible/playbooks/k3s/kubeconfig-k3s.yml apply -k 03_kubernetes/ --validate=false
+                        // echo "Deploying resources..."
+                        // kubectl --kubeconfig=04_ansible/playbooks/k3s/kubeconfig-k3s.yml apply -k 03_kubernetes/ --validate=false
+                        cd $(pwd)/03_kubernetes/
+                        kubectl --kubeconfig=$(pwd)/../04_ansible/playbooks/k3s/kubeconfig-k3s.yml apply -k . --validate=false -v=9
                     '''
                 }
             }
