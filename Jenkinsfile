@@ -86,7 +86,7 @@ pipeline {
         stage('kubectl deploy'){
             agent {
                 docker {
-                    image 'mecodia/jenkins-kubectl'
+                    image 'd3fk/kubectl'
                 }
             }
             steps {
