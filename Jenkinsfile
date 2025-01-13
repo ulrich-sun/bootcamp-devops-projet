@@ -97,7 +97,7 @@ pipeline {
                         echo "Checking cluster access..."
                         kubectl --kubeconfig=04_ansible/playbooks/k3s/kubeconfig-k3s.yml get nodes
                         echo "Deploying resources..."
-                        kubectl --kubeconfig=04_ansible/playbooks/k3s/kubeconfig-k3s.yml apply -k 03_kubernetes/postgressql/ --validate=false
+                        kubectl --kubeconfig=04_ansible/playbooks/k3s/kubeconfig-k3s.yml apply -k 03_kubernetes/ --validate=false
                     '''
                 }
             }
