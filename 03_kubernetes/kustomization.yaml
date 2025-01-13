@@ -1,6 +1,6 @@
 resources:
   # - ./postgressql/ 
-  # - ./database/
-  - ./odoo/ 
-  - ./pgadmin/ 
-  - ./ic-webapp/
+  - ./database
+  - ./odoo
+  - ./pgadmin 
+  - ./ic-webapp
