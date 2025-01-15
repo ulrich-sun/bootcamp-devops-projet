@@ -56,8 +56,8 @@ pipeline {
                     sh '''
                         cat  "04_ansible/host_vars/docker.yaml"
                         cd "04_ansible/"
-                        ansible docker -m ping --private-key ../02_terraform/keypair/kubernetes.pem
-                        ansible-playbook playbooks/docker/main.yml --private-key ../02_terraform/keypair/kubernetes.pem
+                        ansible docker -m ping --private-key ../02_terraform/keypair/docker.pem
+                        ansible-playbook playbooks/docker/main.yml --private-key ../02_terraform/keypair/docker.pem
                     '''
                 }
             }
