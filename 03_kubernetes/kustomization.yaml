@@ -1,5 +1,5 @@
 resources:
-  # - ./postgressql/ 
+  - ./secret-registry 
   - ./database
   - ./odoo
   - ./pgadmin 

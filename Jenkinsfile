@@ -1,93 +1,177 @@
+/* import shared library. */
+@Library('ulrich-shared-library')_
+
 pipeline {
     agent none
+    environment {
+        DOCKERFILE_NAME = "Dockerfile"
+        DOCKER_DIR = "./01_docker"
+        DOCKER_IMAGE = "ic-webapp"
+        DOCKER_TAG = "1.0"
+        REGISTRY_USER = "ulrich-sun"
+        REGISTRY_PASSWORD = credentials('registry_password')
+        PORT_APP = "8080"
+        PORT_EXT = "8090"
+        IP = "172.17.0.1"
+    }
     stages {
-        // stage('Docker ec2') {
-        //     agent {
-        //         docker {
-        //             image 'jenkins/jnlp-agent-terraform'
-        //         }
-        //     }
-        //     environment {
-        //         AWS_ACCESS_KEY_ID = credentials('aws_access_key_id')
-        //         AWS_SECRET_ACCESS_KEY = credentials('aws_secret_access_key')
-        //     }
-        //     steps {
-        //         script {
-        //             sh '''
-        //                 echo "Generating aws credentials"
-        //                 echo "Deleting older if exist"
-        //                 mkdir -p ~/.aws
-        //                 echo "[default]" > ~/.aws/credentials
-        //                 echo -e "aws_access_key_id=$AWS_ACCESS_KEY_ID" >> ~/.aws/credentials
-        //                 echo -e "aws_secret_access_key=$AWS_SECRET_ACCESS_KEY" >> ~/.aws/credentials
-        //                 chmod 400 ~/.aws/credentials
-        //                 cd "./02_terraform/"
-        //                 terraform init 
-        //                 terraform apply --var="stack=docker" --auto-approve
-        //             '''
-        //         }
-        //     }
-        // }
-        // stage('Check File for docker') {
-        //     agent { docker { image 'alpine:latest' } }
-        //     steps {
-        //         script {
-        //             // Vérification que les modifications dans le fichier sont présentes dans ce stage
-        //             sh '''
-        //                 echo "Checking file in Check File stage..."
-        //                 cat  "04_ansible/host_vars/docker.yaml"
-        //             '''
-        //         }
-        //     }
-        // }
-        // stage('deploy on docker instance') {
-        //     steps {
-        //         input message: "Confirmer vous le deploiement Sur l'instance Docker ?", ok: 'Yes'
-        //     }
-        // }
-        // stage('ansible deploy on  Docker instance'){
-        //     agent {
-        //         docker {
-        //             image  'registry.gitlab.com/robconnolly/docker-ansible:latest'
-        //         }
-        //     }
-        //     steps{
-        //         script {
-        //             sh '''
-        //                 cat  "04_ansible/host_vars/docker.yaml"
-        //                 cd "04_ansible/"
-        //                 ansible docker -m ping --private-key ../02_terraform/keypair/docker.pem
-        //                 ansible-playbook playbooks/docker/main.yaml --private-key ../02_terraform/keypair/docker.pem
-        //             '''
-        //         }
-        //     }
-        // }
+        stage('Build Image'){
+            steps{
+                script {
+                    sh '''
+                        docker build --no-cache -f ${DOCKER_DIR}/${DOCKERFILE_NAME} -t ${REGISTRY_USER}/${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_DIR}/.
+                    '''
+                }
+            }
+        }
+        stage('Run and Test'){
+            steps{
+                script {
+                    sh '''
+                        docker ps -a | grep -i ${DOCKER_IMAGE} && docker rm -f  ${DOCKER_IMAGE}
+                        docker run --name ${DOCKER_IMAGE} -dp $PORT_EXT:$PORT_APP ${REGISTRY_USER}/${DOCKER_IMAGE}:${DOCKER_TAG}
+                        sleep 5
+                        curl -I http://$IP:$PORT_EXT | grep -i "200"
+                    '''
+                }
+            }
+        }
+        stage('Stop and Delete Container') {
+            steps{
+                script {
+                    sh '''
+                        docker ps -a | grep -i ${DOCKER_IMAGE} && docker rm -f  ${DOCKER_IMAGE}
+                    '''
+                }
+            }
+        }
+        stage('Login and Push Image'){
+            steps{
+                script {
+                    // Dockerhub Registry
+                    // sh '''
+                    //     echo $REGISTRY_PASSWORD | docker login -u ${REGISTRY_USER} --password-stdin
+                    //     docker push ${REGISTRY_USER}/${DOCKER_IMAGE}:${DOCKER_TAG}
+                    // '''
+                    // Github Registry
+                    sh '''
+                        echo $REGISTRY_PASSWORD | docker login ghcr.io -u $REGISTRY_USER --password-stdin
+                    '''
+                }
+            }
+        }
+        stage('Build Docker EC2'){
+            environment{
+                AWS_ACCESS_KEY_ID = credentials('aws_access_key_id')
+                AWS_SECRET_ACCESS_KEY = credentials('aws_secret_access_key')
+            }
+            agent {
+                docker {
+                    image 'jenkins/jnlp-agent-terraform'
+                }
+            }
+            steps{
+                script {
+                    sh '''
+                        mkdir -p ~/.aws
+                        echo "[default]" > ~/.aws/credentials
+                        echo -e "aws_access_key_id=$AWS_ACCESS_KEY_ID" >> ~/.aws/credentials
+                        echo -e "aws_secret_access_key=$AWS_SECRET_ACCESS_KEY" >> ~/.aws/credentials
+                        chmod 400 ~/.aws/credentials
+                        cd 02_terraform/
+                        terraform init 
+                        terraform apply -var="stack=docker" -auto-approve
+                    '''
+                }
+            }
+        }
+        stage('Docker ec2') {
+            agent {
+                docker {
+                    image 'jenkins/jnlp-agent-terraform'
+                }
+            }
+            environment {
+                AWS_ACCESS_KEY_ID = credentials('aws_access_key_id')
+                AWS_SECRET_ACCESS_KEY = credentials('aws_secret_access_key')
+            }
+            steps {
+                script {
+                    sh '''
+                        echo "Generating aws credentials"
+                        echo "Deleting older if exist"
+                        mkdir -p ~/.aws
+                        echo "[default]" > ~/.aws/credentials
+                        echo -e "aws_access_key_id=$AWS_ACCESS_KEY_ID" >> ~/.aws/credentials
+                        echo -e "aws_secret_access_key=$AWS_SECRET_ACCESS_KEY" >> ~/.aws/credentials
+                        chmod 400 ~/.aws/credentials
+                        cd "./02_terraform/"
+                        terraform init 
+                        terraform apply --var="stack=docker" --auto-approve
+                    '''
+                }
+            }
+        }
+        stage('Check File for docker') {
+            agent { docker { image 'alpine:latest' } }
+            steps {
+                script {
+                    // Vérification que les modifications dans le fichier sont présentes dans ce stage
+                    sh '''
+                        echo "Checking file in Check File stage..."
+                        cat  "04_ansible/host_vars/docker.yaml"
+                    '''
+                }
+            }
+        }
+        stage('deploy on docker instance') {
+            steps {
+                input message: "Confirmer vous le deploiement Sur l'instance Docker ?", ok: 'Yes'
+            }
+        }
+        stage('ansible deploy on  Docker instance'){
+            agent {
+                docker {
+                    image  'registry.gitlab.com/robconnolly/docker-ansible:latest'
+                }
+            }
+            steps{
+                script {
+                    sh '''
+                        cat  "04_ansible/host_vars/docker.yaml"
+                        cd "04_ansible/"
+                        ansible docker -m ping --private-key ../02_terraform/keypair/docker.pem
+                        ansible-playbook playbooks/docker/main.yaml --private-key ../02_terraform/keypair/docker.pem
+                    '''
+                }
+            }
+        }
         
-        // stage('destroy Docker instance on AWS with terraform') {
-        //     steps {
-        //         input message: "Confirmer vous la suppression de l'instance Docker  dans AWS ?", ok: 'Yes'
-        //     }
-        // }
+        stage('destroy Docker instance on AWS with terraform') {
+            steps {
+                input message: "Confirmer vous la suppression de l'instance Docker  dans AWS ?", ok: 'Yes'
+            }
+        }
 
-        // stage('destroy Docker instance') {
-        //     agent {
-        //         docker {
-        //             image 'jenkins/jnlp-agent-terraform'
-        //         }
-        //     }
-        //     environment {
-        //         AWS_ACCESS_KEY_ID = credentials('aws_access_key_id')
-        //         AWS_SECRET_ACCESS_KEY = credentials('aws_secret_access_key')
-        //     }
-        //     steps {
-        //         script {
-        //             sh '''
-        //                 cd "./02_terraform/"
-        //                 terraform destroy --var="stack=docker" --auto-approve
-        //             '''
-        //         }
-        //     }
-        // }
+        stage('destroy Docker instance') {
+            agent {
+                docker {
+                    image 'jenkins/jnlp-agent-terraform'
+                }
+            }
+            environment {
+                AWS_ACCESS_KEY_ID = credentials('aws_access_key_id')
+                AWS_SECRET_ACCESS_KEY = credentials('aws_secret_access_key')
+            }
+            steps {
+                script {
+                    sh '''
+                        cd "./02_terraform/"
+                        terraform destroy --var="stack=docker" --auto-approve
+                    '''
+                }
+            }
+        }
         stage('kubernetes ec2') {
             agent {
                 docker {
@@ -177,7 +261,6 @@ pipeline {
                 input message: "Confirmer vous la suppression de la dev dans AWS ?", ok: 'Yes'
             }
         }
-
         stage('destroy kubernetes EC2') {
             agent {
                 docker {
@@ -199,3 +282,10 @@ pipeline {
         }
     }
 }
+post{
+    always {
+        script {
+            slackNotifier currentBuild.result
+        }
+    }
+}    
