@@ -123,6 +123,7 @@ pipeline {
                     sh '''
                         echo "Checking file in Check File stage..."
                         cat  "04_ansible/host_vars/k3s.yaml"
+                        HOST=$(grep 'ansible_host' 04_ansible/host_vars/k3s.yaml | awk '{print $2}')
                     '''
                 }
             }
