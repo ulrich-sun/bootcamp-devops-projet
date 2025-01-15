@@ -6,5 +6,5 @@ metadata:
     env: prod
     app: ic-webapp
 data:
-  odoo_url: http://$HOST:30010
-  pgadmin_url: http://$HOST:30011
+  odoo_url: http://HOST:30010
+  pgadmin_url: http://HOST:30011

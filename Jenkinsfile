@@ -160,8 +160,8 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        export HOST=$(grep 'ansible_host' 04_ansible/host_vars/k3s.yaml | awk '{print $2}')
-                        sed -i "s|\$HOST|$HOST_IP|g" 03_kubernetes/ic-webapp/ic-webapp-cm.yml
+                        HOST_IP=$(grep 'ansible_host:' 04_ansible/host_vars/k3s.yaml | awk '{print $2}')
+                        sed -i "s|HOST|$HOST_IP|g" 03_kubernetes/ic-webapp/ic-webapp-cm.yml
                         echo "Verifying kubeconfig file..."
                         ls -l 04_ansible/playbooks/k3s/kubeconfig-k3s.yml
                         echo "Checking cluster access..."
