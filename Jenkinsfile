@@ -28,7 +28,7 @@ pipeline {
                 }
             }
         }
-        stage('Check File for k3s') {
+        stage('Check File for docker') {
             agent { docker { image 'alpine:latest' } }
             steps {
                 script {
@@ -63,7 +63,7 @@ pipeline {
             }
         }
         
-        stage('destroy EC2 on AWS with terraform') {
+        stage('destroy Docker instance on AWS with terraform') {
             steps {
                 input message: "Confirmer vous la suppression de l'instance Docker  dans AWS ?", ok: 'Yes'
             }
