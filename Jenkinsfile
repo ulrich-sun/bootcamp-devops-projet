@@ -86,7 +86,7 @@ pipeline {
         stage('kubectl deploy'){
             agent {
                 docker {
-                    image 'aroundus/jenkins-kubectl'
+                    image 'bitnami/kubectl'
                 }
             }
             steps {
