@@ -1,93 +1,93 @@
 pipeline {
     agent none
     stages {
-        stage('Docker ec2') {
-            agent {
-                docker {
-                    image 'jenkins/jnlp-agent-terraform'
-                }
-            }
-            environment {
-                AWS_ACCESS_KEY_ID = credentials('aws_access_key_id')
-                AWS_SECRET_ACCESS_KEY = credentials('aws_secret_access_key')
-            }
-            steps {
-                script {
-                    sh '''
-                        echo "Generating aws credentials"
-                        echo "Deleting older if exist"
-                        mkdir -p ~/.aws
-                        echo "[default]" > ~/.aws/credentials
-                        echo -e "aws_access_key_id=$AWS_ACCESS_KEY_ID" >> ~/.aws/credentials
-                        echo -e "aws_secret_access_key=$AWS_SECRET_ACCESS_KEY" >> ~/.aws/credentials
-                        chmod 400 ~/.aws/credentials
-                        cd "./02_terraform/"
-                        terraform init 
-                        terraform apply --var="stack=docker" --auto-approve
-                    '''
-                }
-            }
-        }
-        stage('Check File for docker') {
-            agent { docker { image 'alpine:latest' } }
-            steps {
-                script {
-                    // Vérification que les modifications dans le fichier sont présentes dans ce stage
-                    sh '''
-                        echo "Checking file in Check File stage..."
-                        cat  "04_ansible/host_vars/docker.yaml"
-                    '''
-                }
-            }
-        }
-        stage('deploy on docker instance') {
-            steps {
-                input message: "Confirmer vous le deploiement Sur l'instance Docker ?", ok: 'Yes'
-            }
-        }
-        stage('ansible deploy on  Docker instance'){
-            agent {
-                docker {
-                    image  'registry.gitlab.com/robconnolly/docker-ansible:latest'
-                }
-            }
-            steps{
-                script {
-                    sh '''
-                        cat  "04_ansible/host_vars/docker.yaml"
-                        cd "04_ansible/"
-                        ansible docker -m ping --private-key ../02_terraform/keypair/docker.pem
-                        ansible-playbook playbooks/docker/main.yaml --private-key ../02_terraform/keypair/docker.pem
-                    '''
-                }
-            }
-        }
+        // stage('Docker ec2') {
+        //     agent {
+        //         docker {
+        //             image 'jenkins/jnlp-agent-terraform'
+        //         }
+        //     }
+        //     environment {
+        //         AWS_ACCESS_KEY_ID = credentials('aws_access_key_id')
+        //         AWS_SECRET_ACCESS_KEY = credentials('aws_secret_access_key')
+        //     }
+        //     steps {
+        //         script {
+        //             sh '''
+        //                 echo "Generating aws credentials"
+        //                 echo "Deleting older if exist"
+        //                 mkdir -p ~/.aws
+        //                 echo "[default]" > ~/.aws/credentials
+        //                 echo -e "aws_access_key_id=$AWS_ACCESS_KEY_ID" >> ~/.aws/credentials
+        //                 echo -e "aws_secret_access_key=$AWS_SECRET_ACCESS_KEY" >> ~/.aws/credentials
+        //                 chmod 400 ~/.aws/credentials
+        //                 cd "./02_terraform/"
+        //                 terraform init 
+        //                 terraform apply --var="stack=docker" --auto-approve
+        //             '''
+        //         }
+        //     }
+        // }
+        // stage('Check File for docker') {
+        //     agent { docker { image 'alpine:latest' } }
+        //     steps {
+        //         script {
+        //             // Vérification que les modifications dans le fichier sont présentes dans ce stage
+        //             sh '''
+        //                 echo "Checking file in Check File stage..."
+        //                 cat  "04_ansible/host_vars/docker.yaml"
+        //             '''
+        //         }
+        //     }
+        // }
+        // stage('deploy on docker instance') {
+        //     steps {
+        //         input message: "Confirmer vous le deploiement Sur l'instance Docker ?", ok: 'Yes'
+        //     }
+        // }
+        // stage('ansible deploy on  Docker instance'){
+        //     agent {
+        //         docker {
+        //             image  'registry.gitlab.com/robconnolly/docker-ansible:latest'
+        //         }
+        //     }
+        //     steps{
+        //         script {
+        //             sh '''
+        //                 cat  "04_ansible/host_vars/docker.yaml"
+        //                 cd "04_ansible/"
+        //                 ansible docker -m ping --private-key ../02_terraform/keypair/docker.pem
+        //                 ansible-playbook playbooks/docker/main.yaml --private-key ../02_terraform/keypair/docker.pem
+        //             '''
+        //         }
+        //     }
+        // }
         
-        stage('destroy Docker instance on AWS with terraform') {
-            steps {
-                input message: "Confirmer vous la suppression de l'instance Docker  dans AWS ?", ok: 'Yes'
-            }
-        }
+        // stage('destroy Docker instance on AWS with terraform') {
+        //     steps {
+        //         input message: "Confirmer vous la suppression de l'instance Docker  dans AWS ?", ok: 'Yes'
+        //     }
+        // }
 
-        stage('destroy Docker instance') {
-            agent {
-                docker {
-                    image 'jenkins/jnlp-agent-terraform'
-                }
-            }
-            environment {
-                AWS_ACCESS_KEY_ID = credentials('aws_access_key_id')
-                AWS_SECRET_ACCESS_KEY = credentials('aws_secret_access_key')
-            }
-            steps {
-                script {
-                    sh '''
-                        cd "./02_terraform/"
-                        terraform destroy --var="stack=docker" --auto-approve
-                    '''
-                }
-            }
-        }
+        // stage('destroy Docker instance') {
+        //     agent {
+        //         docker {
+        //             image 'jenkins/jnlp-agent-terraform'
+        //         }
+        //     }
+        //     environment {
+        //         AWS_ACCESS_KEY_ID = credentials('aws_access_key_id')
+        //         AWS_SECRET_ACCESS_KEY = credentials('aws_secret_access_key')
+        //     }
+        //     steps {
+        //         script {
+        //             sh '''
+        //                 cd "./02_terraform/"
+        //                 terraform destroy --var="stack=docker" --auto-approve
+        //             '''
+        //         }
+        //     }
+        // }
         stage('kubernetes ec2') {
             agent {
                 docker {
@@ -123,7 +123,7 @@ pipeline {
                     sh '''
                         echo "Checking file in Check File stage..."
                         cat  "04_ansible/host_vars/k3s.yaml"
-                        HOST=$(grep 'ansible_host' 04_ansible/host_vars/k3s.yaml | awk '{print $2}')
+                        
                     '''
                 }
             }
@@ -160,6 +160,8 @@ pipeline {
             steps {
                 script {
                     sh '''
+                        export HOST=$(grep 'ansible_host' 04_ansible/host_vars/k3s.yaml | awk '{print $2}')
+                        envsubst < 03_kubernetes/ic-webapp/ic-webapp-cm.yml
                         echo "Verifying kubeconfig file..."
                         ls -l 04_ansible/playbooks/k3s/kubeconfig-k3s.yml
                         echo "Checking cluster access..."
