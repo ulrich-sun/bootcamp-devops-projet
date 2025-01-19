@@ -2,7 +2,7 @@
 // @Library('ulrich-shared-library')_
 
 pipeline {
-    agent none
+    agent any
     environment {
         DOCKERFILE_NAME = "Dockerfile"
         DOCKER_DIR = "./01_docker"
