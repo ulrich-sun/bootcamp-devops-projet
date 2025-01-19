@@ -8,8 +8,8 @@ pipeline {
         DOCKER_DIR = "./01_docker"
         DOCKER_IMAGE = "ic-webapp"
         DOCKER_TAG = "1.0"
-        REGISTRY_USER = "ulrichsteve"
-        REGISTRY_PASSWORD = credentials('registry_password')
+        DOCKERHUB_ID = "ulrichsteve"
+        DOCKERHUB_PASSWORD = credentials('dockerhub_password')
         PORT_APP = "8080"
         PORT_EXT = "8090"
         IP = "172.17.0.1"
@@ -19,7 +19,7 @@ pipeline {
             steps{
                 script {
                     sh '''
-                        docker build --no-cache -f ${DOCKER_DIR}/${DOCKERFILE_NAME} -t ${REGISTRY_USER}/${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_DIR}/.
+                        docker build --no-cache -f ${DOCKER_DIR}/${DOCKERFILE_NAME} -t ${DOCKERHUB_ID}/${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_DIR}/.
                     '''
                 }
             }
@@ -29,7 +29,7 @@ pipeline {
                 script {
                     sh '''
                         docker ps -a | grep -i ${DOCKER_IMAGE} && docker rm -f  ${DOCKER_IMAGE}
-                        docker run --name ${DOCKER_IMAGE} -dp $PORT_EXT:$PORT_APP ${REGISTRY_USER}/${DOCKER_IMAGE}:${DOCKER_TAG}
+                        docker run --name ${DOCKER_IMAGE} -dp $PORT_EXT:$PORT_APP ${DOCKERHUB_ID}/${DOCKER_IMAGE}:${DOCKER_TAG}
                         sleep 5
                         curl -I http://$IP:$PORT_EXT | grep -i "200"
                     '''
@@ -50,12 +50,12 @@ pipeline {
                 script {
                     // Dockerhub Registry
                     sh '''
-                        echo $REGISTRY_PASSWORD | docker login -u ${REGISTRY_USER} --password-stdin
-                        docker push ${REGISTRY_USER}/${DOCKER_IMAGE}:${DOCKER_TAG}
+                        echo $DOCKERHUB_PASSWORD | docker login -u ${DOCKERHUB_ID} --password-stdin
+                        docker push ${DOCKERHUB_ID}/${DOCKER_IMAGE}:${DOCKER_TAG}
                     '''
                     // Github Registry
                     // sh '''
-                    //     echo $REGISTRY_PASSWORD | docker login ghcr.io -u $REGISTRY_USER --password-stdin
+                    //     echo $DOCKERHUB_PASSWORD | docker login ghcr.io -u $DOCKERHUB_ID --password-stdin
                     // '''
                 }
             }
