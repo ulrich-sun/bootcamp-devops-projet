@@ -1,5 +1,5 @@
-/* import shared library. */
-@Library('ulrich-shared-library')_
+// /* import shared library. */
+// @Library('ulrich-shared-library')_
 
 pipeline {
     agent none
@@ -8,7 +8,7 @@ pipeline {
         DOCKER_DIR = "./01_docker"
         DOCKER_IMAGE = "ic-webapp"
         DOCKER_TAG = "1.0"
-        REGISTRY_USER = "ulrich-sun"
+        REGISTRY_USER = "ulrichsteve"
         REGISTRY_PASSWORD = credentials('registry_password')
         PORT_APP = "8080"
         PORT_EXT = "8090"
@@ -49,14 +49,14 @@ pipeline {
             steps{
                 script {
                     // Dockerhub Registry
-                    // sh '''
-                    //     echo $REGISTRY_PASSWORD | docker login -u ${REGISTRY_USER} --password-stdin
-                    //     docker push ${REGISTRY_USER}/${DOCKER_IMAGE}:${DOCKER_TAG}
-                    // '''
-                    // Github Registry
                     sh '''
-                        echo $REGISTRY_PASSWORD | docker login ghcr.io -u $REGISTRY_USER --password-stdin
+                        echo $REGISTRY_PASSWORD | docker login -u ${REGISTRY_USER} --password-stdin
+                        docker push ${REGISTRY_USER}/${DOCKER_IMAGE}:${DOCKER_TAG}
                     '''
+                    // Github Registry
+                    // sh '''
+                    //     echo $REGISTRY_PASSWORD | docker login ghcr.io -u $REGISTRY_USER --password-stdin
+                    // '''
                 }
             }
         }
@@ -85,33 +85,33 @@ pipeline {
                 }
             }
         }
-        stage('Docker ec2') {
-            agent {
-                docker {
-                    image 'jenkins/jnlp-agent-terraform'
-                }
-            }
-            environment {
-                AWS_ACCESS_KEY_ID = credentials('aws_access_key_id')
-                AWS_SECRET_ACCESS_KEY = credentials('aws_secret_access_key')
-            }
-            steps {
-                script {
-                    sh '''
-                        echo "Generating aws credentials"
-                        echo "Deleting older if exist"
-                        mkdir -p ~/.aws
-                        echo "[default]" > ~/.aws/credentials
-                        echo -e "aws_access_key_id=$AWS_ACCESS_KEY_ID" >> ~/.aws/credentials
-                        echo -e "aws_secret_access_key=$AWS_SECRET_ACCESS_KEY" >> ~/.aws/credentials
-                        chmod 400 ~/.aws/credentials
-                        cd "./02_terraform/"
-                        terraform init 
-                        terraform apply --var="stack=docker" --auto-approve
-                    '''
-                }
-            }
-        }
+        // stage('Docker ec2') {
+        //     agent {
+        //         docker {
+        //             image 'jenkins/jnlp-agent-terraform'
+        //         }
+        //     }
+        //     environment {
+        //         AWS_ACCESS_KEY_ID = credentials('aws_access_key_id')
+        //         AWS_SECRET_ACCESS_KEY = credentials('aws_secret_access_key')
+        //     }
+        //     steps {
+        //         script {
+        //             sh '''
+        //                 echo "Generating aws credentials"
+        //                 echo "Deleting older if exist"
+        //                 mkdir -p ~/.aws
+        //                 echo "[default]" > ~/.aws/credentials
+        //                 echo -e "aws_access_key_id=$AWS_ACCESS_KEY_ID" >> ~/.aws/credentials
+        //                 echo -e "aws_secret_access_key=$AWS_SECRET_ACCESS_KEY" >> ~/.aws/credentials
+        //                 chmod 400 ~/.aws/credentials
+        //                 cd "./02_terraform/"
+        //                 terraform init 
+        //                 terraform apply --var="stack=docker" --auto-approve
+        //             '''
+        //         }
+        //     }
+        // }
         stage('Check File for docker') {
             agent { docker { image 'alpine:latest' } }
             steps {
@@ -206,8 +206,7 @@ pipeline {
                     // Vérification que les modifications dans le fichier sont présentes dans ce stage
                     sh '''
                         echo "Checking file in Check File stage..."
-                        cat  "04_ansible/host_vars/k3s.yaml"
-                        
+                        cat  "04_ansible/host_vars/k3s.yaml"  
                     '''
                 }
             }
@@ -282,10 +281,10 @@ pipeline {
         }
     }
 }
-post{
-    always {
-        script {
-            slackNotifier currentBuild.result
-        }
-    }
-}    
+// post{
+//     always {
+//         script {
+//             slackNotifier currentBuild.result
+//         }
+//     }
+// }    
