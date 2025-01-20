@@ -1,0 +1,81 @@
+image: docker:latest 
+services:
+  - name: docker:dind  # Utilise le service Docker Dind pour exécuter les commandes Docker dans le pipeline
+    alias: docker
+
+stages:
+  - build_image
+  - test
+  - push_image
+  - deploy_aws
+  - ansible_deploy
+  - destroy_aws
+
+# Definitions des ancres
+.anchors:
+  - &docker_login
+    echo $DOCKERHUB_PASSWORD | docker login -u ${DOCKERHUB_ID} --password-stdin
+  - &aws_credentials
+    mkdir -p ~/.aws
+    echo "[default]" > ~/.aws/credentials
+    echo -e "aws_access_key_id=$AWS_ACCESS_KEY_ID" >> ~/.aws/credentials
+    echo -e "aws_secret_access_key=$AWS_SECRET_ACCESS_KEY" >> ~/.aws/credentials
+    chmod 400 ~/.aws/credentials
+
+variables:
+  DOCKERFILE_NAME = "Dockerfile"
+  DOCKER_DIR = "./01_docker"
+  DOCKER_IMAGE = "ic-webapp"
+  DOCKER_TAG = "1.0"
+  DOCKERHUB_ID = "ulrichsteve"
+  PORT_APP = "8080"
+  PORT_EXT = "8090"
+  IP = "172.17.0.1"
+
+workflow:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "develop"
+      when: always
+
+before_script:
+  - echo "Starting Pipeline CI/CD With Gitlab-CI"
+
+build_image:
+  stage: build_image
+  script: 
+    - docker build --no-cache -f ${DOCKER_DIR}/${DOCKERFILE_NAME} -t ${DOCKERHUB_ID}/${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_DIR}/.
+
+test_image:
+  stage: test
+  script: 
+    - docker ps -a | grep -i ${DOCKER_IMAGE} && docker rm -f ${DOCKER_IMAGE}
+    - docker run --name ${DOCKER_IMAGE} -dp $PORT_EXT:$PORT_APP ${DOCKERHUB_ID}/${DOCKER_IMAGE}:${DOCKER_TAG}
+    - sleep 5
+    - curl -I http://$IP:$PORT_EXT | grep -i "200"
+    - docker stop ${DOCKER_IMAGE} && docker rm -f ${DOCKER_IMAGE}
+push_image:
+  stage: push_image
+  script: 
+    - *docker_login
+    - docker push ${DOCKERHUB_ID}/${DOCKER_IMAGE}:${DOCKER_TAG}
+
+deploy_aws_docker:
+  stage: deploy_aws
+  image: jenkins/jnlp-agent-terraform 
+  script:
+    - *aws_credentials
+    - cd ./02_terraform/
+    - terraform init
+    - terraform plan
+    - terraform apply -var="stack=docker" -auto-approve
+  artifacts:
+    paths:
+      - ./02_terraform//terraform.tfstate
+ansible_deploy:
+  stage: ansible_deploy
+  image: registry.gitlab.com/robconnolly/docker-ansible:latest
+  script:
+    - cat  "04_ansible/host_vars/docker.yaml"
+    - cd "04_ansible/"
+    - ansible docker -m ping --private-key ../02_terraform/keypair/docker.pem
+    - ansible-playbook playbooks/docker/main.yaml --private-key ../02_terraform/keypair/docker.pem
