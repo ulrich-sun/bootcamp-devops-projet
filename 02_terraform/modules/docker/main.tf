@@ -23,7 +23,6 @@ resource "aws_instance" "ec2_project" {
     command = "echo -e '\nansible_host: ${self.public_ip}' >> ../04_ansible/host_vars/docker.yaml"
   }
 
-
   tags = {
     Name = var.instance_name
   }
