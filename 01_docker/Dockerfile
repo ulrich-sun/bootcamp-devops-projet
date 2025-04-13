@@ -1,6 +1,7 @@
 FROM python:3.6-alpine
 LABEL maintainer="Ulrich NOUMSI"
 WORKDIR /opt
+RUN pip install --upgrade pip
 RUN pip install flask --index-url=https://pypi.org/simple
 COPY . /opt/
 EXPOSE 8080
