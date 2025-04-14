@@ -1,5 +1,4 @@
 FROM python:3.6-alpine
-#Ulrich NOUMSI
 LABEL maintainer="Ulrich NOUMSI"
 WORKDIR /opt
 RUN pip install --upgrade pip
