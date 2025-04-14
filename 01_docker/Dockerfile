@@ -1,3 +1,4 @@
+#Bonjour
 FROM python:3.6-alpine
 LABEL maintainer="Ulrich NOUMSI"
 WORKDIR /opt
